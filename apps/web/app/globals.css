@@ -1,0 +1,8 @@
+:root { --brand: #0ea5e9; }
+body { font-family: ui-sans-serif, system-ui, -apple-system; margin: 0; color: #0f172a; }
+a { color: var(--brand); text-decoration: none; }
+.container { max-width: 960px; margin: 0 auto; padding: 24px; }
+.grid { display: grid; gap: 12px; }
+.btn { background: var(--brand); color: white; padding: 8px 12px; border-radius: 6px; display: inline-block; }
+.card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+

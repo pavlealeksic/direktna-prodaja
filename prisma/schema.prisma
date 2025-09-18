@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Builder {
+  id              String         @id @default(cuid())
+  clerkOrgId      String?        @unique
+  name            String
+  slug            String         @unique
+  logoUrl         String?
+  contactEmail    String?
+  contactPhone    String?
+  website         String?
+  companyInfo     String?
+  calendlyUrl     String?
+  customDomain    String?        @unique
+  ownerUserId     String         // Clerk userId
+  projects        Project[]
+  subscription    Subscription?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Subscription {
+  id               String   @id @default(cuid())
+  builderId        String   @unique
+  builder          Builder  @relation(fields: [builderId], references: [id])
+  plan             Plan     @default(STARTER)
+  status           SubState @default(ACTIVE)
+  stripeCustomerId String?
+  stripeSubId      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+enum Plan {
+  STARTER
+  PRO
+}
+
+enum SubState {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+model Project {
+  id             String          @id @default(cuid())
+  builderId      String
+  builder        Builder         @relation(fields: [builderId], references: [id])
+  name           String
+  location       String
+  micrositeSlug  String
+  brandColor     String? 
+  description    String?
+  heroImageUrl   String?
+  phase          Phase           @default(PLANNING)
+  amenities      Json?
+  units          ApartmentUnit[]
+  leads          Lead[]
+  views          ViewEvent[]
+  boosted        Boolean         @default(false)
+  floorPlans     FloorPlan[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([builderId, micrositeSlug])
+}
+
+model FloorPlan {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  floor      Int
+  imageUrl   String
+  createdAt  DateTime @default(now())
+
+  @@unique([projectId, floor])
+}
+
+enum Phase {
+  PLANNING
+  UNDER_CONSTRUCTION
+  READY
+}
+
+enum UnitStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
+model ApartmentUnit {
+  id          String     @id @default(cuid())
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id])
+  number      String
+  sizeSqm     Float
+  floor       Int
+  rooms       Int
+  price       Int?
+  orientation String?
+  status      UnitStatus @default(AVAILABLE)
+  images      Json?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Lead {
+  id         String      @id @default(cuid())
+  projectId  String
+  project    Project     @relation(fields: [projectId], references: [id])
+  unitId     String?
+  unit       ApartmentUnit? @relation(fields: [unitId], references: [id])
+  name       String
+  email      String
+  phone      String?
+  message    String?
+  status     LeadStatus  @default(NEW)
+  meta       Json?
+  assignedToUserId String?
+  assignedAt       DateTime?
+  reminderAt       DateTime?
+  updatedAt        DateTime    @updatedAt
+  createdAt  DateTime    @default(now())
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+@@index([projectId], map: "idx_project")
+model Project {
+  id             String          @id @default(cuid())
+  builderId      String
+  builder        Builder         @relation(fields: [builderId], references: [id])
+  name           String
+  location       String
+  micrositeSlug  String
+  brandColor     String? 
+  description    String?
+  heroImageUrl   String?
+  phase          Phase           @default(PLANNING)
+  amenities      Json?
+  units          ApartmentUnit[]
+  leads          Lead[]
+  views          ViewEvent[]
+  boosted        Boolean         @default(false)
+  floorPlans     FloorPlan[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([builderId, micrositeSlug])
+}
+
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  SCHEDULED
+  CLOSED
+}
+
+model ViewEvent {
+  id         String     @id @default(cuid())
+  projectId  String
+  project    Project    @relation(fields: [projectId], references: [id])
+  unitId     String?
+  unit       ApartmentUnit? @relation(fields: [unitId], references: [id])
+  path       String
+  createdAt  DateTime   @default(now())
+}
+
+model AssignmentCursor {
+  builderId String  @id
+  builder   Builder @relation(fields: [builderId], references: [id])
+  lastUserId String?
+  updatedAt DateTime @updatedAt
+}
+
+model EligibleAssignee {
+  builderId String
+  builder   Builder @relation(fields: [builderId], references: [id])
+  userId    String
+
+  @@id([builderId, userId])
+}

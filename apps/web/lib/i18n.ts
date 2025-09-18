@@ -1,0 +1,51 @@
+export type Locale = 'en' | 'sr';
+const dict: Record<Locale, Record<string, string>> = {
+  en: {
+    dashboard: 'Builder Dashboard',
+    createProject: 'Create Project',
+    yourProjects: 'Your Projects',
+    leads: 'Leads',
+    settings: 'Settings',
+    manageBilling: 'Manage Billing',
+    projectNotFound: 'Project not found',
+    scheduleVisit: 'Schedule a visit',
+    contact: 'Contact',
+    minRooms: 'Min rooms',
+    minSize: 'Min size (m²)',
+    maxSize: 'Max size (m²)',
+    floor: 'Floor',
+    orientation: 'Orientation (e.g., South)',
+    anyStatus: 'Any status',
+    AVAILABLE: 'AVAILABLE',
+    RESERVED: 'RESERVED',
+    SOLD: 'SOLD',
+    filter: 'Filter',
+    allUnits: 'All units',
+  },
+  sr: {
+    dashboard: 'Kontrolna tabla',
+    createProject: 'Novi Projekat',
+    yourProjects: 'Vaši Projekti',
+    leads: 'Upiti',
+    settings: 'Podešavanja',
+    manageBilling: 'Pretplata',
+    projectNotFound: 'Projekat nije pronađen',
+    scheduleVisit: 'Zakažite obilazak',
+    contact: 'Kontakt',
+    minRooms: 'Min. soba',
+    minSize: 'Min. površina (m²)',
+    maxSize: 'Max. površina (m²)',
+    floor: 'Sprat',
+    orientation: 'Orijentacija (npr. Jug)',
+    anyStatus: 'Bilo koji status',
+    AVAILABLE: 'DOSTUPNO',
+    RESERVED: 'REZERVISANO',
+    SOLD: 'PRODATO',
+    filter: 'Filtriraj',
+    allUnits: 'Sve jedinice',
+  },
+};
+
+export function t(key: string, locale: Locale = 'en') {
+  return dict[locale]?.[key] || dict.en[key] || key;
+}
